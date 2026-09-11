@@ -1,0 +1,66 @@
+=== FILE: A题/附件\附件1.xlsx
+  SHEET: Sheet1  max_row=242 max_col=3
+    ('时间', '温度', '水分浓度')
+    (0, 28, 0.01963)
+    (60, 28.528, 0.02002)
+    (120, 29.192, 0.02053)
+    (180, 29.684, 0.021)
+    (240, 30.037, 0.02151)
+    (300, 30.834, 0.02191)
+    (360, 31.293, 0.02233)
+    (420, 31.82, 0.02278)
+    (480, 32.121, 0.02325)
+    ... (first 10 rows shown)
+=== FILE: A题/附件\附件2.xlsx
+  SHEET: Sheet1  max_row=146 max_col=2
+    ('时间', '半径')
+    (0, 2)
+    (1800, 1.873)
+    (3600, 1.794)
+    (5400, 1.703)
+    (7200, 1.625)
+    (9000, 1.589)
+    (10800, 1.552)
+    (12600, 1.51)
+    (14400, 1.477)
+    ... (first 10 rows shown)
+=== FILE: A题/附件\附件3\result1.xlsx
+  SHEET: 温度  max_row=5 max_col=6
+    ('时间\\到药材中心的距离', 0, 0.1, 0.2, '…', 2)
+    (1, None, None, None, None, None)
+    (2, None, None, None, None, None)
+    (3, None, None, None, None, None)
+    ('…', None, None, None, None, None)
+  SHEET: 水分浓度  max_row=5 max_col=6
+    ('时间\\到药材中心的距离', 0, 0.1, 0.2, '…', 2)
+    (1, None, None, None, None, None)
+    (2, None, None, None, None, None)
+    (3, None, None, None, None, None)
+    ('…', None, None, None, None, None)
+=== FILE: A题/附件\附件3\result2.xlsx
+  SHEET: 温度  max_row=5 max_col=6
+    ('时间\\到药材中心的距离', 0, 0.1, 0.2, '…', 2)
+    (1, None, None, None, None, None)
+    (2, None, None, None, None, None)
+    (3, None, None, None, None, None)
+    ('…', None, None, None, None, None)
+  SHEET: 水分浓度  max_row=5 max_col=6
+    ('时间\\到药材中心的距离', 0, 0.1, 0.2, '…', 2)
+    (1, None, None, None, None, None)
+    (2, None, None, None, None, None)
+    (3, None, None, None, None, None)
+    ('…', None, None, None, None, None)
+=== FILE: A题/附件\附件3\result3.xlsx
+  SHEET: Sheet1  max_row=5 max_col=6
+    ('时间\\到药材中心的距离', 0, 0.1, 0.2, '…', 2)
+    (60, None, None, None, None, None)
+    (120, None, None, None, None, None)
+    (180, None, None, None, None, None)
+    ('…', None, None, None, None, None)
+=== FILE: A题/附件\附件3\result4.xlsx
+  SHEET: Sheet1  max_row=5 max_col=6
+    ('时间\\到药材中心的距离', 0, 0.1, 0.2, '…', '药材表面')
+    (60, None, None, None, None, None)
+    (120, None, None, None, None, None)
+    (180, None, None, None, None, None)
+    ('…', None, None, None, None, None)

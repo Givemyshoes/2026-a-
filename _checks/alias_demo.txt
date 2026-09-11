@@ -1,0 +1,26 @@
+=== 演示1: 一个对象，两个标签 ===
+a is b -> True
+id(a)=2684360848640  id(b)=2684360848640
+改 b[0]=99 后 a = [99, 2, 3]
+
+=== 演示2: 两个标签不是两份拷贝（用 is 判断）===
+y = x      -> y is x ? True
+z = list(x)-> z is x ? False   (这才是复制)
+
+=== 演示3: 类里直接用全局名（不加 self）===
+用全局名 g 改完后: g[1][1] = 5.0
+self.g is g ? True
+通过 self.g 改完，g[2][2] = 9.0
+
+=== 演示4: 类里“重新赋值”全局名会怎样 ===
+调用 bad() 后 k=[1, 2, 3]  (没变)
+调用 good() 后 k=[8, 8, 8], k2=[1, 2, 3]
+-> 重新赋值只改“标签指向”，别的标签还指着旧对象
+
+=== 演示5: 你代码里的真实情况 ===
+obj.self.object_c is self.object_c ? True
+obj.object_t is object_t ? True
+obj.T_air    is T_AIR    ? True
+
+同一个 self.object_c 上的标签个数：全局 self.object_c、每个实例的 self.self.object_c ...
+两个不同实例共享同一列表? True
