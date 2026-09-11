@@ -1,0 +1,43 @@
+---------- 第 1 步：两种容器 ----------
+a 是 list   b 是 ndarray
+读出来: 7.5 7.5  -> 一模一样
+
+---------- 第 2 步：同一套公式 ----------
+list 容器最后一行: [0.726, 5.926, 27.69, 65.658]
+numpy容器最后一行: [0.726, 5.926, 27.69, 65.658]
+-> 一模一样，说明公式体不用改
+
+---------- 第 3 步：你要改的地方 ----------
+
+原来（写死行数 + 嵌套list）：
+    def create_object(object):
+        for t in range(1801):          <-- 问题2 要 20 万行，装不下
+            row = [0]
+            object.append(row)
+            for r in range(20):
+                line = [0]
+                object[t].append(line)
+        return object
+
+    object_t, object_c = [], []
+    object_t = create_object(object_t)
+    object_c = create_object(object_c)
+
+    initialize(object_t, T_AIR)        <-- 靠判断"是不是同一个列表"来区分
+    initialize(object_c, 2.55)
+
+改成（numpy，行数可以随时调）：
+    NSTEP = 250000                     # 问题1写1800，问题2~4写250000
+
+    object_t = np.zeros((NSTEP + 1, 21))
+    object_c = np.zeros((NSTEP + 1, 21))
+
+    object_t[0, :] = 28.0              # 药材初温
+    object_c[0, :] = 2.55              # 药材初水分
+
+公式部分：一行都不用改！
+
+唯一要小心的地方：
+    Tn = object_t[t].copy()            # numpy 的 object_t[t] 是"视图"，
+                                       # 想要一份旧值的副本必须加 .copy()
+

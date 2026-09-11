@@ -40,11 +40,11 @@ get_each_second(C_air,C_AIR)
 # print(T_AIR)
 # print(C_AIR)
 
-def create_object(object):
-    for t in range(1801):
+def create_object(object,a=1801,b=20):
+    for t in range(a):
         row = [0]
         object.append(row)
-        for r in range(20):
+        for r in range(b):
             line = [0]
             object[t].append(line)
     
@@ -57,27 +57,38 @@ object_t = create_object(object_t)
 object_c = create_object(object_c)
 
 #开始温度28，水分2.55
-def initialize(OBJECT,j):
+def initialize(OBJECT,j,a=1801,b=21):
     if j == T_AIR:
-        for t in range(1801):
-            for r in range(21):
+        for t in range(a):
+            for r in range(b):
                 if t == 0:
                     OBJECT[0][r] = j[0]
                 else:
                     OBJECT[t][20] = j[t]
     else:
-        for t in range(1801):
-            for r in range(21):
+        for t in range(a):
+            for r in range(b):
                 if t == 0:
                     OBJECT[0][r] = j
 
     return OBJECT
 
+#第一问初始化
 initialize(object_t,T_AIR)
 initialize(object_c,2.55)
 
 # print(object_t)
 # print(object_c)
+
+object_t_2 , object_c_2 = [] , []
+
+object_t_2 = create_object(object_t_2,10801)
+object_c_2 = create_object(object_c_2,10801)  
+
+#第二问初始化
+initialize(object_t_2,T_AIR,10800)
+initialize(object_c_2,2.55,10800)
+
 
 import math
 
@@ -97,39 +108,50 @@ class data():
         self.dt = 1
         self.dr = 0.001
         ##############################################################################
+        self.object_t_2 = object_t_2
+        self.object_c_2 = object_c_2            #第二问数据
 
+######################################################################################
+    def D(self,t,r):                                                #第一问的动态数据
+        return 7*10**(-9)*math.exp(-0.89/self.object_c[t][r])           
+######################################################################################
+    def D_2(self,t,r):                                              
+        return 2.4*10**(-3)*math.exp(0.45/self.object_c_2[t][r])*math.exp(3850/self.object_t_2[t][r])
 
+    def p_2(self,t,r):
+        return 650+128*self.object_c_2[t][r]
+                                                                    #第二问的动态数据
+    def c_p_2(self,t,r):
+        return 1450+2736*self.object_c_2[t][r]/(1+self.object_c_2[t][r])
 
-
-    def D(self,t,r):        
-        return 7*10**(-9)*math.exp(-0.89/self.object_c[t][r])
-
+    def k_2(self,t,r):
+        return 0.21+0.38*self.object_c_2[t][r]/(1+self.object_c_2[t][r])
+######################################################################################
 class formula(data):
     def __init__(self):
         super().__init__()
 
 ######################################################################################
 ####下面是第一，二小问计算公式
-
-    def center_t(self,t,r):
+                            #a->p,b->c_p,c->k,d->D
+    def center_t(self,t,r,a,b,c,d):
         self.object_t[t+1][r] = self.object_t[t][r] + (self.object_t[t][r+1] - self.object_t[t][r])*4*self.k*self.dt/(self.p*self.c_p*self.dr**2)
 
-    def inner_t(self,t,r):
-        
+    def inner_t(self,t,r,a,b,c,d):                                          #温度公式                                                                                
         self.object_t[t+1][r] = self.object_t[t][r] + ((((r+0.5)/1000)*self.k*(self.object_t[t][r+1]-self.object_t[t][r])/self.dr)-(((r-0.5)/1000)*self.k*(self.object_t[t][r]-self.object_t[t][r-1])/self.dr))*self.dt/(self.p*self.c_p*(r/1000)*self.dr)
 
-    def surface_t(self,t,r):
+    def surface_t(self,t,r,a,b,c,d):
         self.object_t[t+1][r] = self.object_t[t][r] + ((2*self.k*(self.object_t[t][r-1]-self.object_t[t][r])/self.dr**2)-2*self.h*(self.object_t[t][r]-self.T_air[t])/self.dr)*self.dt/(self.p*self.c_p)
-
-    def center_c(self,t,r):
+######################################################################################
+    def center_c(self,t,r,a,b,c,d):
         self.object_c[t+1][r] = self.object_c[t][r] + (self.object_c[t][r+1] - self.object_c[t][r])*4*self.dt*(self.D(t,r)+self.D(t,r+1))/2/self.dr**2
 
-    def inner_c(self,t,r):
+    def inner_c(self,t,r,a,b,c,d):                                          #水分公式
         self.object_c[t+1][r] = self.object_c[t][r] + (((r+0.5)/1000)*(self.D(t,r+1)+self.D(t,r))/2*(self.object_c[t][r+1]-self.object_c[t][r])/self.dr-((r-0.5)/1000)*(self.D(t,r)+self.D(t,r-1))/2*(self.object_c[t][r]-self.object_c[t][r-1])/self.dr)*self.dt/(r/1000*self.dr)
 
-    def surface_c(self,t,r):
+    def surface_c(self,t,r,a,b,c,d):
         self.object_c[t+1][r] = self.object_c[t][r] + (2*self.D(t,r)*(self.object_c[t][r-1]-self.object_c[t][r])/self.dr**2-2*self.h_m*(self.object_c[t][r]-self.C_air[t])/self.dr)*self.dt
-
+####
 ######################################################################################
 ####下面是第三小问计算公式
     
