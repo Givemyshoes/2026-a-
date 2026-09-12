@@ -116,25 +116,37 @@ class data():
         ##############################################################################
         # self.object_t_2 = object_t_2
         # self.object_c_2 = object_c_2            #第二问数据
-
 ######################################################################################
+        self.stable_T_AIR = 323.15
+        self.stable_C_AIR = 0.05
+
     def D(self,t,r,b=None):                                                #第一问的动态数据
         if b is None:
             b = self.object_c
         return 7*10**(-9)*math.exp(-0.89/b[t][r])           
 ######################################################################################
 #                                                                   #第一问的动态数据
-    def D_2(self,t,r,a,b):                  
-        return 2.4*10**(-3)*math.exp(-0.45/b[t][r])*math.exp(-3850/a[t][r])
-
-    def p_2(self,t,r,a,b):
-        return 650+128*b[t][r]
+    def D_2(self,t,r,a,b,tag=0):
+        if tag <= 14400:                  
+            return 2.4*10**(-3)*math.exp(-0.45/b[t][r])*math.exp(-3850/a[t][r])
+        if tag > 14400:
+            return 4.2*10**(-4)*math.exp(-0.30/self.stable_C_AIR)*math.exp(-3850/self.stable_T_AIR)
+    def p_2(self,t,r,a,b,tag=0):
+        if tag <= 14400:
+            return 650+128*b[t][r]
+        if tag > 14400:
+            return 650+128*self.stable_C_AIR
                                                                     #第二问的动态数据
-    def c_p_2(self,t,r,a,b):
-        return 1450+2736*b[t][r]/(1+b[t][r])
-
-    def k_2(self,t,r,a,b):
-        return 0.21+0.38*b[t][r]/(1+b[t][r])
+    def c_p_2(self,t,r,a,b,tag=0):
+        if tag <= 14400:
+            return 1450+2736*b[t][r]/(1+b[t][r])
+        if tag > 14400:
+            return 1450+2736*self.stable_C_AIR/(1+self.stable_C_AIR)
+    def k_2(self,t,r,a,b,tag=0):
+        if tag <= 14400:
+            return 0.21+0.38*b[t][r]/(1+b[t][r])
+        if tag > 14400:
+            return 0.21+0.38*self.stable_C_AIR/(1+self.stable_C_AIR)
 ######################################################################################
 class formula(data):
     def __init__(self):
@@ -167,8 +179,8 @@ class formula(data):
             b = self.object_c
             a[t+1][r] = a[t][r] + ((((r+0.5)/1000)*k*(a[t][r+1]-a[t][r])/self.dr)-(((r-0.5)/1000)*k*(a[t][r]-a[t][r-1])/self.dr))*self.dt/(p*c_p*(r/1000)*self.dr)
         else:
-            a[t+1][r] = a[t][r] + ((((r+0.5)/1000)*((k[t][r]+k[t][r+1])/2)*(a[t][r+1]-a[t][r])/self.dr)-(((r-0.5)/1000)*((k[t][r]+k[t][r+1])/2)*(a[t][r]-a[t][r-1])/self.dr))*self.dt/(p*c_p*(r/1000)*self.dr)
-    def surface_t(self,t,r,a=None,b=None,D=None,p=None,c_p=None,k=None):
+            a[t+1][r] = a[t][r] + ((((r+0.5)/1000)*((k[t][r]+k[t][r+1])/2)*(a[t][r+1]-a[t][r])/self.dr)-(((r-0.5)/1000)*((k[t][r]+k[t][r-1])/2)*(a[t][r]-a[t][r-1])/self.dr))*self.dt/(p*c_p*(r/1000)*self.dr)
+    def surface_t(self,t,r,a=None,b=None,D=None,p=None,c_p=None,k=None,tag=0):
         if a is None:
             a = self.object_t
             p = self.p
@@ -178,8 +190,11 @@ class formula(data):
         if b is None:
             b = self.object_c
             a[t+1][r] = a[t][r] + ((2*k*(a[t][r-1]-a[t][r])/self.dr**2)-2*self.h*(a[t][r]-self.T_air[t])/self.dr)*self.dt/(p*c_p)
-        else:
-            a[t+1][r] = a[t][r] + ((2*((k[t][r]+k[t][r-1])/2)*(a[t][r-1]-a[t][r])/self.dr**2)-2*self.h*(a[t][r]-self.T_air[t])/self.dr)*self.dt/(p*c_p)
+        else:    
+            if tag <= 14400:
+                a[t+1][r] = a[t][r] + ((2*((k[t][r]+k[t][r-1])/2)*(a[t][r-1]-a[t][r])/self.dr**2)-2*self.h*(a[t][r]-self.T_air[t])/self.dr)*self.dt/(p*c_p)
+            if tag > 14400:
+                a[t+1][r] = a[t][r] + ((2*((k[t][r]+k[t][r-1])/2)*(a[t][r-1]-a[t][r])/self.dr**2)-2*self.h*(a[t][r]-self.stable_T_AIR)/self.dr)*self.dt/(p*c_p)
 ######################################################################################
     def center_c(self,t,r,a=None,b=None,D=None,p=None,c_p=None,k=None):
         if a is None:
@@ -204,7 +219,7 @@ class formula(data):
             b[t+1][r] = b[t][r] + (((r+0.5)/1000)*(self.D(t,r)+self.D(t,r+1))/2*(b[t][r+1]-b[t][r])/self.dr-((r-0.5)/1000)*(self.D(t,r)+self.D(t,r-1))/2*(b[t][r]-b[t][r-1])/self.dr)*self.dt/(r/1000*self.dr)  
         else:
             b[t+1][r] = b[t][r] + (((r+0.5)/1000)*(D[t][r+1]+D[t][r])/2*(b[t][r+1]-b[t][r])/self.dr-((r-0.5)/1000)*(D[t][r]+D[t][r-1])/2*(b[t][r]-b[t][r-1])/self.dr)*self.dt/(r/1000*self.dr)
-    def surface_c(self,t,r,a=None,b=None,D=None,p=None,c_p=None,k=None):
+    def surface_c(self,t,r,a=None,b=None,D=None,p=None,c_p=None,k=None,tag=0):
         if a is None:
             a = self.object_t
             p = self.p
@@ -214,13 +229,17 @@ class formula(data):
         if b is None:
             b = self.object_c
             b[t+1][r] = b[t][r] + (2*self.D(t,r)*(b[t][r-1]-b[t][r])/self.dr**2-2*self.h_m*(b[t][r]-self.C_air[t])/self.dr)*self.dt 
-        else:
-            b[t+1][r] = b[t][r] + (2*D[t][r]*(b[t][r-1]-b[t][r])/self.dr**2-2*self.h_m*(b[t][r]-self.C_air[t])/self.dr)*self.dt 
+        else:    
+            if tag <= 14400:
+                b[t+1][r] = b[t][r] + (2*D[t][r]*(b[t][r-1]-b[t][r])/self.dr**2-2*self.h_m*(b[t][r]-self.C_air[t])/self.dr)*self.dt 
+            if tag > 14400:
+                b[t+1][r] = b[t][r] + (2*D[t][r]*(b[t][r-1]-b[t][r])/self.dr**2-2*self.h_m*(b[t][r]-self.stable_C_AIR)/self.dr)*self.dt
+
 ####
 ######################################################################################
 ####下面是第三小问计算公式
     
-
+######################################################################################
 for t in range(1800):
     for r in range(21):
         if r == 0:
@@ -229,14 +248,14 @@ for t in range(1800):
             formula().surface_t(t,r)
         else:
             formula().inner_t(t,r)
-
+                                                        #第一问的内容
         if r == 0:
             formula().center_c(t,r)
         elif r == 20:
             formula().surface_c(t,r)
         else:
             formula().inner_c(t,r)
-
+######################################################################################
 
 # print(object_t)
 # print(object_c)
@@ -252,16 +271,16 @@ initialize(object_t_2,T_AIR,10801,21)
 initialize(object_c_2,2.55,10801,21)
 
 p_2,c_p_2 = 0,0
-
-def static_data(t,r):
-    return data().p_2(t,r,object_t_2,object_c_2),data().c_p_2(t,r,object_t_2,object_c_2)
+                                                                        #第二问的内容
+def static_data(t,r,object_t,object_c):
+    return data().p_2(t,r,object_t,object_c,t),data().c_p_2(t,r,object_t,object_c,t)
 
 for t in range(10800):
     for r in range(21):
         D_2[t][r] = data().D_2(t,r,object_t_2,object_c_2)
         k_2[t][r] = data().k_2(t,r,object_t_2,object_c_2)
     for r in range(21):
-        p_2,c_p_2 = static_data(t,r)
+        p_2,c_p_2 = static_data(t,r,object_t_2,object_c_2)
         if r == 0:
             formula().center_t(t,r,object_t_2,object_c_2,D_2,p_2,c_p_2,k_2)
         elif r == 20:
@@ -276,5 +295,45 @@ for t in range(10800):
         else:
             formula().inner_c(t,r,object_t_2,object_c_2,D_2,p_2,c_p_2,k_2)
 
-print(object_t_2)
+# print(object_t_2)
+######################################################################################
 
+line = np.zeros((1,21))
+
+object_t_3 = np.zeros((14401,21))
+object_c_3 = np.zeros((14401,21))
+D_3 = np.zeros((14401,21))
+k_3 = np.zeros((14401,21))
+
+initialize(object_t_3,T_AIR,14401,21)
+initialize(object_c_3,2.55,14401,21)
+
+p_3,c_p_3 = 0,0
+
+while object_c_3[t][r] < 0.15:
+    if t >= 14300:
+        object_t_3 = np.append(object_t_3,line,axis=0)
+        object_c_3 = np.append(object_c_3,line,axis=0)
+        D_3 = np.append(D_3,line,axis=0)
+        k_3 = np.append(k_3,line,axis=0)
+    t += 1
+    for r in range(21):
+        D_3[t][r] = data().D_2(t,r,object_t_3,object_c_3)
+        k_3[t][r] = data().k_2(t,r,object_t_3,object_c_3)
+    for r in range(21):
+        p_3,c_p_3 = static_data(t,r,object_t_3,object_c_3)
+        if r == 0:
+            formula().center_t(t,r,object_t_3,object_c_3,D_3,p_3,c_p_3,k_3)
+        elif r == 20:
+            formula().surface_t(t,r,object_t_3,object_c_3,D_3,p_3,c_p_3,k_3,t)
+        else:
+            formula().inner_t(t,r,object_t_3,object_c_3,D_3,p_3,c_p_3,k_3)
+
+        if r == 0:
+            formula().center_c(t,r,object_t_3,object_c_3,D_3,p_3,c_p_3,k_3)
+        elif r == 20:
+            formula().surface_c(t,r,object_t_3,object_c_3,D_3,p_3,c_p_3,k_3,t)
+        else:
+            formula().inner_c(t,r,object_t_3,object_c_3,D_3,p_3,c_p_3,k_3)
+        
+print(object_c_3)
