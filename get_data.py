@@ -34,8 +34,15 @@ def get_each_second(list,create_list):
 
     return create_list
 
+def convert_to_K(list):
+    for i in range(len(list)):
+        list[i] = list[i] + 273.15
+    return list
+
 get_each_second(T_air,T_AIR)
 get_each_second(C_air,C_AIR)
+
+T_AIR = convert_to_K(T_AIR)
 
 # print(T_AIR)
 # print(C_AIR)
@@ -64,7 +71,7 @@ def initialize(OBJECT,j,a=1801,b=21):
                 if t == 0:
                     OBJECT[0][r] = j[0]
                 else:
-                    OBJECT[t][20] = j[t]
+                    OBJECT[t][20] = j[t]   
     else:
         for t in range(a):
             for r in range(b):
@@ -118,7 +125,7 @@ class data():
 ######################################################################################
 #                                                                   #第一问的动态数据
     def D_2(self,t,r,a,b):                  
-        return 2.4*10**(-3)*math.exp(0.45/b[t][r])*math.exp(3850/a[t][r])
+        return 2.4*10**(-3)*math.exp(-0.45/b[t][r])*math.exp(-3850/a[t][r])
 
     def p_2(self,t,r,a,b):
         return 650+128*b[t][r]
@@ -145,7 +152,9 @@ class formula(data):
             D = self.D
         if b is None:
             b = self.object_c
-        a[t+1][r] = a[t][r] + (a[t][r+1] - a[t][r])*4*k*self.dt/(p*c_p*self.dr**2)
+            a[t+1][r] = a[t][r] + (a[t][r+1] - a[t][r])*4*k*self.dt/(p*c_p*self.dr**2)
+        else:
+            a[t+1][r] = a[t][r] + (a[t][r+1] - a[t][r])*4*((k[t][r]+k[t][r+1])/2)*self.dt/(p*c_p*self.dr**2)
 
     def inner_t(self,t,r,a=None,b=None,D=None,p=None,c_p=None,k=None):                                          #温度公式                                                                                
         if a is None:
@@ -156,8 +165,9 @@ class formula(data):
             D = self.D
         if b is None:
             b = self.object_c
-        a[t+1][r] = a[t][r] + ((((r+0.5)/1000)*k*(a[t][r+1]-a[t][r])/self.dr)-(((r-0.5)/1000)*k*(a[t][r]-a[t][r-1])/self.dr))*self.dt/(p*c_p*(r/1000)*self.dr)
-
+            a[t+1][r] = a[t][r] + ((((r+0.5)/1000)*k*(a[t][r+1]-a[t][r])/self.dr)-(((r-0.5)/1000)*k*(a[t][r]-a[t][r-1])/self.dr))*self.dt/(p*c_p*(r/1000)*self.dr)
+        else:
+            a[t+1][r] = a[t][r] + ((((r+0.5)/1000)*((k[t][r]+k[t][r+1])/2)*(a[t][r+1]-a[t][r])/self.dr)-(((r-0.5)/1000)*((k[t][r]+k[t][r+1])/2)*(a[t][r]-a[t][r-1])/self.dr))*self.dt/(p*c_p*(r/1000)*self.dr)
     def surface_t(self,t,r,a=None,b=None,D=None,p=None,c_p=None,k=None):
         if a is None:
             a = self.object_t
@@ -167,7 +177,9 @@ class formula(data):
             D = self.D
         if b is None:
             b = self.object_c
-        a[t+1][r] = a[t][r] + ((2*k*(a[t][r-1]-a[t][r])/self.dr**2)-2*self.h*(a[t][r]-self.T_air[t])/self.dr)*self.dt/(p*c_p)
+            a[t+1][r] = a[t][r] + ((2*k*(a[t][r-1]-a[t][r])/self.dr**2)-2*self.h*(a[t][r]-self.T_air[t])/self.dr)*self.dt/(p*c_p)
+        else:
+            a[t+1][r] = a[t][r] + ((2*((k[t][r]+k[t][r-1])/2)*(a[t][r-1]-a[t][r])/self.dr**2)-2*self.h*(a[t][r]-self.T_air[t])/self.dr)*self.dt/(p*c_p)
 ######################################################################################
     def center_c(self,t,r,a=None,b=None,D=None,p=None,c_p=None,k=None):
         if a is None:
@@ -178,7 +190,7 @@ class formula(data):
         if b is None:
             b = self.object_c
             b[t+1][r] = b[t][r] + (b[t][r+1] - b[t][r])*4*self.dt*(self.D(t,r)+self.D(t,r+1))/2/self.dr**2
-        if a is not None:    
+        else:    
             b[t+1][r] = b[t][r] + (b[t][r+1] - b[t][r])*4*self.dt*(D[t][r]+D[t][r+1])/2/self.dr**2
 
     def inner_c(self,t,r,a=None,b=None,D=None,p=None,c_p=None,k=None):                                          #水分公式
@@ -189,8 +201,9 @@ class formula(data):
             k = self.k
         if b is None:
             b = self.object_c
-        b[t+1][r] = b[t][r] + (((r+0.5)/1000)*(D[t][r+1]+D[t][r])/2*(b[t][r+1]-b[t][r])/self.dr-((r-0.5)/1000)*(D[t][r]+D[t][r-1])/2*(b[t][r]-b[t][r-1])/self.dr)*self.dt/(r/1000*self.dr)
-
+            b[t+1][r] = b[t][r] + (((r+0.5)/1000)*(self.D(t,r)+self.D(t,r+1))/2*(b[t][r+1]-b[t][r])/self.dr-((r-0.5)/1000)*(self.D(t,r)+self.D(t,r-1))/2*(b[t][r]-b[t][r-1])/self.dr)*self.dt/(r/1000*self.dr)  
+        else:
+            b[t+1][r] = b[t][r] + (((r+0.5)/1000)*(D[t][r+1]+D[t][r])/2*(b[t][r+1]-b[t][r])/self.dr-((r-0.5)/1000)*(D[t][r]+D[t][r-1])/2*(b[t][r]-b[t][r-1])/self.dr)*self.dt/(r/1000*self.dr)
     def surface_c(self,t,r,a=None,b=None,D=None,p=None,c_p=None,k=None):
         if a is None:
             a = self.object_t
@@ -200,7 +213,9 @@ class formula(data):
             D = self.D
         if b is None:
             b = self.object_c
-        b[t+1][r] = b[t][r] + (2*D[t][r]*(b[t][r-1]-b[t][r])/self.dr**2-2*self.h_m*(b[t][r]-self.C_air[t])/self.dr)*self.dt
+            b[t+1][r] = b[t][r] + (2*self.D(t,r)*(b[t][r-1]-b[t][r])/self.dr**2-2*self.h_m*(b[t][r]-self.C_air[t])/self.dr)*self.dt 
+        else:
+            b[t+1][r] = b[t][r] + (2*D[t][r]*(b[t][r-1]-b[t][r])/self.dr**2-2*self.h_m*(b[t][r]-self.C_air[t])/self.dr)*self.dt 
 ####
 ######################################################################################
 ####下面是第三小问计算公式
@@ -231,21 +246,22 @@ import numpy as np
 object_t_2 = np.zeros((10801,21))
 object_c_2 = np.zeros((10801,21))
 D_2 = np.zeros((10801,21))
+k_2 = np.zeros((10801,21))
 
 initialize(object_t_2,T_AIR,10801,21)
 initialize(object_c_2,2.55,10801,21)
 
-p_2,c_p_2,k_2 = 0,0,0
+p_2,c_p_2 = 0,0
 
 def static_data(t,r):
-    return data().p_2(t,r,object_t_2,object_c_2),data().c_p_2(t,r,object_t_2,object_c_2),data().k_2(t,r,object_t_2,object_c_2)
+    return data().p_2(t,r,object_t_2,object_c_2),data().c_p_2(t,r,object_t_2,object_c_2)
 
-for t in range(10801):
+for t in range(10800):
     for r in range(21):
-        D_2 = data().D_2(t,r,object_t_2,object_c_2)
-
+        D_2[t][r] = data().D_2(t,r,object_t_2,object_c_2)
+        k_2[t][r] = data().k_2(t,r,object_t_2,object_c_2)
     for r in range(21):
-        p_2,c_p_2,k_2 = static_data(t,r)
+        p_2,c_p_2 = static_data(t,r)
         if r == 0:
             formula().center_t(t,r,object_t_2,object_c_2,D_2,p_2,c_p_2,k_2)
         elif r == 20:
@@ -261,3 +277,4 @@ for t in range(10801):
             formula().inner_c(t,r,object_t_2,object_c_2,D_2,p_2,c_p_2,k_2)
 
 print(object_t_2)
+
