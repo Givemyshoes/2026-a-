@@ -1,0 +1,12 @@
+D:\App Data\deep seek harness\建模大赛\2026年a题\get_data.py:131: RuntimeWarning: divide by zero encountered in scalar divide
+  return 2.4*10**(-3)*math.exp(-0.45/b[t][r])*math.exp(-3850/a[t][r])
+D:\App Data\deep seek harness\建模大赛\2026年a题\get_data.py:131: RuntimeWarning: divide by zero encountered in divide
+  return 2.4*10**(-3)*math.exp(-0.45/b[t][r])*math.exp(-3850/a[t][r])
+Traceback (most recent call last):
+  File "D:\App Data\deep seek harness\建模大赛\2026年a题\get_data.py", line 323, in <module>
+    D_3[t][r] = data().D_2(t,r,object_t_3,object_c_3)
+                ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\App Data\deep seek harness\建模大赛\2026年a题\get_data.py", line 131, in D_2
+    return 2.4*10**(-3)*math.exp(-0.45/b[t][r])*math.exp(-3850/a[t][r])
+                        ~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: only 0-dimensional arrays can be converted to Python scalars

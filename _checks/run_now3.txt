@@ -1,0 +1,4 @@
+D:\App Data\deep seek harness\建模大赛\2026年a题\get_data.py:131: RuntimeWarning: divide by zero encountered in scalar divide
+  return 2.4*10**(-3)*math.exp(-0.45/b[t][r])*math.exp(-3850/a[t][r])
+D:\App Data\deep seek harness\建模大赛\2026年a题\get_data.py:131: RuntimeWarning: overflow encountered in scalar divide
+  return 2.4*10**(-3)*math.exp(-0.45/b[t][r])*math.exp(-3850/a[t][r])

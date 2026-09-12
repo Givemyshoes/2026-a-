@@ -313,13 +313,12 @@ initialize(object_c_3,2.55,14401,21)
 p_3,c_p_3 = 0,0
 t = 0
 
-while object_c_3[t][0] > 0.15:
+while object_c_3[t][0] > 0.15 and t < 20000:
     if t >= 14300:
         object_t_3 = np.append(object_t_3,line_t,axis=0)
         object_c_3 = np.append(object_c_3,line_c,axis=0)
         D_3 = np.append(D_3,line,axis=0)
         k_3 = np.append(k_3,line,axis=0)
-
     for r in range(21):
         D_3[t][r] = data().D_2(t,r,object_t_3,object_c_3)
         k_3[t][r] = data().k_2(t,r,object_t_3,object_c_3)
@@ -338,7 +337,8 @@ while object_c_3[t][0] > 0.15:
             formula().surface_c(t,r,object_t_3,object_c_3,D_3,p_3,c_p_3,k_3,t)
         else:
             formula().inner_c(t,r,object_t_3,object_c_3,D_3,p_3,c_p_3,k_3)
-
+        
     t += 1
-    
-print(object_c_3)
+
+for tt in [1800,3600,5400,7200,9000,10800,14400,19999]:
+    print('t=%-6d 中心C=%.4f  表面C=%.4f  中心T=%.2f' % (tt, object_c_3[tt][0], object_c_3[tt][20], object_t_3[tt][0]-273.15))

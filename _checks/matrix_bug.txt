@@ -1,0 +1,23 @@
+=== np.append + np.matrix 会发生什么 ===
+a       : ndarray, shape=(3, 21)
+line_c  : matrix, shape=(1, 21)   <- np.matrix 永远是二维
+append后: matrix, shape=(4, 21)   <- 整个数组变成了 matrix!
+
+--- 普通 ndarray 的 b[1][2] ---
+a[1][2] = np.float64(0.0)  (类型 float64)  <- 正常
+
+--- 变成 matrix 之后的 b[1][2] ---
+b[1][2] -> IndexError: index 2 is out of bounds for axis 0 with size 1
+  因为 matrix 的 b[1] 返回一个 (1,21) 的二维矩阵，
+  再 [2] 是去取它的"第2行"，而它只有1行 -> 越界
+
+=== 你运行时真正报的错 ===
+  File "get_data.py", line 323, in <module>
+    D_3[t][r] = data().D_2(t,r,object_t_3,object_c_3)
+  TypeError: only 0-dimensional arrays can be converted to Python scalars
+  (同一句里 b[t][r] 已经不再是数，而是二维矩阵)
+
+=== 正确的行应该怎么造 ===
+  line_c = np.array([[0.0]*20 + [0.05]])   shape=(1, 21)
+  append 后: ndarray, shape=(4, 21)  <- 还是 ndarray ✓
+  c[1][2] = np.float64(0.0) 类型 float64 ✓

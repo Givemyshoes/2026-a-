@@ -1,0 +1,30 @@
+第322行:     t += 1
+
+--- 它前后的代码 ---
+ 317|     if t >= 14300:
+ 318|         object_t_3 = np.append(object_t_3,line_t,axis=0)
+ 319|         object_c_3 = np.append(object_c_3,line_c,axis=0)
+ 320|         D_3 = np.append(D_3,line,axis=0)
+ 321|         k_3 = np.append(k_3,line,axis=0)
+ 322|     t += 1
+ 323|     for r in range(21):
+ 324|         D_3[t][r] = data().D_2(t,r,object_t_3,object_c_3)
+ 325|         k_3[t][r] = data().k_2(t,r,object_t_3,object_c_3)
+
+=== 模拟 while 循环的执行顺序 ===
+t=0 时: 检查 object_c_3[0][0]=2.55 > 0.15  -> 真, 进入循环
+        if t>=14300: 否
+        t += 1        <- t 变成 1
+        D_3[1] 用 object_c_3[1] 算  <- 第1行是 0 !
+        center_c(1,...) 写入 object_c_3[2]  <- 用第1行(0)算第2行
+        第0行(2.55)被完全跳过!
+下次检查: object_c_3[1][0] = 0 > 0.15 -> 假 -> 退出
+
+=> 循环只跑了1次, 数组基本全是0
+
+=== 正确顺序 ===
+t=0 时: 检查 object_c_3[0][0]=2.55 > 0.15  -> 真
+        D_3[0] 用第0行算
+        center_c(0,...) 用第0行算第1行
+        t += 1        <- 最后才+1
+下次检查: object_c_3[1][0] = 约2.55 > 0.15 -> 真, 继续

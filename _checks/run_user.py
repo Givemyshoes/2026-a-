@@ -341,4 +341,7 @@ while object_c_3[t][0] > 0.15:
 
     t += 1
     
-print(object_c_3)
+TIME_END = t
+print('loop_exit_t =', t)
+import pickle
+pickle.dump((object_t_3[:t+1], object_c_3[:t+1], t), open('_checks/res3.pkl','wb'))
